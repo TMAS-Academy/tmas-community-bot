@@ -12,5 +12,7 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
+    await bot.tree.sync()
+    print("Slash commands synced.")
 
 bot.run(DISCORD_TOKEN)
