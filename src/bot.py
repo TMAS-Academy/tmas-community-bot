@@ -25,6 +25,7 @@ async def setup_hook():
     await bot.load_extension("commands.about")
     await bot.load_extension("commands.website")
     await bot.load_extension("commands.recommend")
+    await bot.load_extension("commands.server_info")
 
     guild = discord.Object(id=GUILD_ID)
 
