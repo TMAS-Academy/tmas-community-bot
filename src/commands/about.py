@@ -17,9 +17,13 @@ class About(commands.Cog):
         description="Learn more about TMAS Academy."
     )
     async def about(self, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            "TMAS Academy is a nonprofit organization providing free STEM resources."
+        message = (
+            "📚 **TMAS Academy**\n\n"
+            "TMAS Academy is a nonprofit organization dedicated to providing "
+            "high-quality, free educational resources to students worldwide."
         )
+
+        await interaction.response.send_message(message)
 
 async def setup(bot):
     await bot.add_cog(About(bot))
