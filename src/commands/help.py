@@ -17,9 +17,17 @@ class Help(commands.Cog):
         description="View the available TMAS Academy commands."
     )
     async def help(self, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            "TMAS Academy Community Bot commands coming soon!"
+        message = (
+            "📚 **TMAS Academy Community Bot**\n\n"
+            "Here are the available commands:\n\n"
+            "`/help` — View this help message\n"
+            "`/resources` — Browse TMAS Academy STEM resources\n"
+            "`/recommend` — Get a STEM book recommendation\n"
+            "`/about` — Learn more about TMAS Academy\n"
+            "`/website` — Visit the TMAS Academy website"
         )
+        
+        await interaction.response.send_message(message)
 
 async def setup(bot):
     await bot.add_cog(Help(bot))
