@@ -24,7 +24,10 @@ class Help(commands.Cog):
             "`/resources` — Browse TMAS Academy STEM resources\n"
             "`/recommend` — Get a STEM book recommendation\n"
             "`/about` — Learn more about TMAS Academy\n"
-            "`/website` — Visit the TMAS Academy website"
+            "`/website` — Visit the TMAS Academy website\n"
+            "`/server_info` — View basic information about the TMAS Academy server\n"
+            "`/rules` — View the TMAS Academy server rules\n"
+            "`/ping` — Check if the TMAS Academy Community Bot is online"
         )
         
         await interaction.response.send_message(message)
