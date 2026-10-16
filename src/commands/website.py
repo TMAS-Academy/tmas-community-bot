@@ -18,7 +18,7 @@ class Website(commands.Cog):
     )
     async def website(self, interaction: discord.Interaction):
         await interaction.response.send_message(
-            "Visit the TMAS Academy website: https://tmasacademy.github.io/"
+            "Visit the TMAS Academy website: https://www.tmasacademy.com/"
         )
 
 async def setup(bot):
