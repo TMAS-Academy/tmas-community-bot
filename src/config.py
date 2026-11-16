@@ -19,5 +19,3 @@ try:
     GUILD_ID = int(get_required_env("GUILD_ID"))
 except ValueError as error:
     raise RuntimeError("GUILD_ID must be a valid integer.") from error
-
-DATABASE_URL = os.getenv("DATABASE_URL")

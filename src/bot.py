@@ -8,7 +8,6 @@ FileInfo : This file contains the main Discord bot setup,
 import discord
 from discord.ext import commands
 from config import DISCORD_TOKEN, GUILD_ID
-from database import initialize_database
 
 intents = discord.Intents.default()
 
@@ -18,8 +17,6 @@ bot = commands.Bot(
 )
 
 async def setup_hook():
-    await initialize_database()
-
     await bot.load_extension("commands.help")
     await bot.load_extension("commands.resources")
     await bot.load_extension("commands.about")
