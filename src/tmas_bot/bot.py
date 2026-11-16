@@ -7,7 +7,7 @@ FileInfo : This file contains the main Discord bot setup,
 
 import discord
 from discord.ext import commands
-from config import DISCORD_TOKEN, GUILD_ID
+from tmas_bot.config import DISCORD_TOKEN, GUILD_ID
 
 intents = discord.Intents.default()
 
@@ -17,14 +17,14 @@ bot = commands.Bot(
 )
 
 async def setup_hook():
-    await bot.load_extension("commands.help")
-    await bot.load_extension("commands.resources")
-    await bot.load_extension("commands.about")
-    await bot.load_extension("commands.website")
-    await bot.load_extension("commands.recommend")
-    await bot.load_extension("commands.server_info")
-    await bot.load_extension("commands.rules")
-    await bot.load_extension("commands.ping")
+    await bot.load_extension("tmas_bot.commands.help")
+    await bot.load_extension("tmas_bot.commands.resources")
+    await bot.load_extension("tmas_bot.commands.about")
+    await bot.load_extension("tmas_bot.commands.website")
+    await bot.load_extension("tmas_bot.commands.recommend")
+    await bot.load_extension("tmas_bot.commands.server_info")
+    await bot.load_extension("tmas_bot.commands.rules")
+    await bot.load_extension("tmas_bot.commands.ping")
 
     guild = discord.Object(id=GUILD_ID)
 

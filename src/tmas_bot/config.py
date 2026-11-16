@@ -4,8 +4,10 @@ Configuration management for the TMAS Academy Community Bot.
 
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env")
 
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
