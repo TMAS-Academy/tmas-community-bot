@@ -6,13 +6,16 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+WEBSITE_URL = "https://www.tmasacademy.com/"
+BOOKS_URL = "https://www.tmasacademy.com/books"
+
 class Resources(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(
         name="resources",
-        description="Explore free TMAS Academy STEM resources."
+        description="Explore free TMAS Academy STEM resources.",
     )
     async def resources(self, interaction: discord.Interaction):
         embed = discord.Embed(
@@ -22,40 +25,27 @@ class Resources(commands.Cog):
                 "STEM educational resources!"
             ),
             color=discord.Color.blue(),
-            url="https://www.tmasacademy.com/resources"
+            url=BOOKS_URL,
         )
 
         embed.add_field(
-            name="📖 STEM Study Guides",
+            name="📖 TMAS Book Library",
             value=(
-                "Explore free study guides covering AP courses, "
-                "competitive mathematics, and more.\n"
-                "[Browse Study Guides]"
-                "(https://www.tmasacademy.com/resources)"
+                "Explore our collection of free STEM study guides "
+                "and educational books.\n"
+                f"[Browse All Books]({BOOKS_URL})"
             ),
-            inline=False
-        )
-
-        embed.add_field(
-            name="📚 TMAS Book Library",
-            value=(
-                "Browse the collection of TMAS Academy books "
-                "and educational materials.\n"
-                "[Explore Books]"
-                "(https://www.tmasacademy.com/books)"
-            ),
-            inline=False
+            inline=False,
         )
 
         embed.add_field(
             name="🌐 TMAS Academy Website",
             value=(
-                "Discover more about our organization, resources, "
-                "and educational initiatives.\n"
-                "[Visit TMAS Academy]"
-                "(https://www.tmasacademy.com/)"
+                "Learn more about TMAS Academy and our educational "
+                "initiatives.\n"
+                f"[Visit TMAS Academy]({WEBSITE_URL})"
             ),
-            inline=False
+            inline=False,
         )
 
         embed.set_footer(
