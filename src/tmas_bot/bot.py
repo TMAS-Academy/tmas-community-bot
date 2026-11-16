@@ -1,40 +1,51 @@
 """
-FileName : bot.py
-FileInfo : This file contains the main Discord bot setup,
-           extension loading, command synchronization, and
-           bot startup logic for the TMAS Academy Community Bot.
+Main entry point for the TMAS Academy Community Bot.
 """
 
 import discord
 from discord.ext import commands
 from tmas_bot.config import DISCORD_TOKEN, GUILD_ID
 
-intents = discord.Intents.default()
-
-bot = commands.Bot(
-    command_prefix="!",
-    intents=intents
+EXTENSIONS = (
+    "tmas_bot.commands.help",
+    "tmas_bot.commands.resources",
+    "tmas_bot.commands.about",
+    "tmas_bot.commands.website",
+    "tmas_bot.commands.recommend",
+    "tmas_bot.commands.server_info",
+    "tmas_bot.commands.rules",
+    "tmas_bot.commands.ping",
 )
 
-async def setup_hook():
-    await bot.load_extension("tmas_bot.commands.help")
-    await bot.load_extension("tmas_bot.commands.resources")
-    await bot.load_extension("tmas_bot.commands.about")
-    await bot.load_extension("tmas_bot.commands.website")
-    await bot.load_extension("tmas_bot.commands.recommend")
-    await bot.load_extension("tmas_bot.commands.server_info")
-    await bot.load_extension("tmas_bot.commands.rules")
-    await bot.load_extension("tmas_bot.commands.ping")
+class TMASBot(commands.Bot):
+    def __init__(self):
+        intents = discord.Intents.default()
 
-    guild = discord.Object(id=GUILD_ID)
+        super().__init__(
+            command_prefix="!",
+            intents=intents,
+        )
 
-    bot.tree.copy_global_to(guild=guild)
-    await bot.tree.sync(guild=guild)
+    async def setup_hook(self):
+        """Load extensions and synchronize guild commands."""
 
-bot.setup_hook = setup_hook
+        for extension in EXTENSIONS:
+            await self.load_extension(extension)
 
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user}")
+        guild = discord.Object(id=GUILD_ID)
 
-bot.run(DISCORD_TOKEN)
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
+
+        print("Bot extensions loaded and commands synchronized.")
+
+    async def on_ready(self):
+        print(f"Logged in as {self.user}")
+
+bot = TMASBot()
+
+def main():
+    bot.run(DISCORD_TOKEN)
+
+if __name__ == "__main__":
+    main()
