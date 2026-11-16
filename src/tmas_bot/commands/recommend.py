@@ -7,6 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 
 WEBSITE_URL = "https://www.tmasacademy.com/"
+BOOKS_URL = "https://www.tmasacademy.com/books"
 
 BOOKS = {
     "amc-10-12-key": {
@@ -152,6 +153,119 @@ BOOKS = {
     },
 }
 
+# Keywords used to match student topics to relevant books.
+BOOK_KEYWORDS = {
+    "amc-10-12-key": [
+        "amc", "competition math", "math competition",
+        "formulas", "quick reference",
+    ],
+    "ace-amc-10-12": [
+        "amc", "competition math", "problem solving",
+        "number theory", "combinatorics", "geometry",
+    ],
+    "ace-ap-calculus-ab": [
+        "calculus", "limits", "derivatives", "integrals",
+        "differentiation", "integration",
+    ],
+    "ace-ap-calculus-bc": [
+        "calculus", "series", "sequences", "parametric",
+        "polar", "derivatives", "integrals",
+    ],
+    "ace-ap-physics-1": [
+        "physics", "kinematics", "forces", "motion",
+        "energy", "momentum", "rotation",
+    ],
+    "ace-ap-physics-c": [
+        "physics", "mechanics", "kinematics", "dynamics",
+        "energy", "momentum", "calculus mechanics",
+    ],
+    "ace-ap-chemistry": [
+        "chemistry", "chemical reactions", "equilibrium",
+        "acids", "bases", "stoichiometry",
+    ],
+    "ace-ap-csp": [
+        "computer science", "programming", "algorithms",
+        "binary", "data", "computing",
+    ],
+    "ace-ap-statistics": [
+        "statistics", "probability", "regression",
+        "distributions", "sampling", "data analysis",
+    ],
+    "ace-ap-biology": [
+        "biology", "cells", "genetics", "evolution",
+        "organisms", "ecology",
+    ],
+    "ace-ap-psychology": [
+        "psychology", "behavior", "memory", "cognition",
+        "development", "learning",
+    ],
+    "ace-ap-human-geography": [
+        "geography", "population", "migration",
+        "urbanization", "culture", "globalization",
+    ],
+    "ace-multivariable-calculus": [
+        "multivariable calculus", "partial derivatives",
+        "multiple integrals", "vectors", "vector calculus",
+        "gradients",
+    ],
+    "ace-differential-equations-and-linear-algebra": [
+        "differential equations", "linear algebra",
+        "eigenvalues", "eigenvectors", "matrices",
+        "laplace transforms", "odes", "linear systems",
+    ],
+}
+
+SUBJECT_CHOICES = [
+    app_commands.Choice(name="AMC 10/12", value="amc"),
+    app_commands.Choice(name="AP Calculus AB", value="ace-ap-calculus-ab"),
+    app_commands.Choice(name="AP Calculus BC", value="ace-ap-calculus-bc"),
+    app_commands.Choice(name="AP Physics 1", value="ace-ap-physics-1"),
+    app_commands.Choice(name="AP Physics C: Mechanics", value="ace-ap-physics-c"),
+    app_commands.Choice(name="AP Chemistry", value="ace-ap-chemistry"),
+    app_commands.Choice(name="AP Computer Science Principles", value="ace-ap-csp"),
+    app_commands.Choice(name="AP Statistics", value="ace-ap-statistics"),
+    app_commands.Choice(name="AP Biology", value="ace-ap-biology"),
+    app_commands.Choice(name="AP Psychology", value="ace-ap-psychology"),
+    app_commands.Choice(name="AP Human Geography", value="ace-ap-human-geography"),
+    app_commands.Choice(name="Multivariable Calculus", value="ace-multivariable-calculus"),
+    app_commands.Choice(
+        name="Differential Equations and Linear Algebra",
+        value="ace-differential-equations-and-linear-algebra",
+    ),
+]
+
+
+def find_recommendations(topic: str, subject: str | None = None):
+    """Find books matching a student's topic and optional subject."""
+
+    normalized_topic = topic.lower().strip()
+    matches = []
+
+    for book_id, keywords in BOOK_KEYWORDS.items():
+        if subject == "amc" and not book_id.startswith(("amc-10-12", "ace-amc")):
+            continue
+
+        if subject and subject != "amc" and book_id != subject:
+            continue
+
+        score = sum(
+            1 for keyword in keywords
+            if keyword in normalized_topic
+        )
+
+        # Also match words from the book title.
+        title_words = BOOKS[book_id]["title"].lower().split()
+        score += sum(
+            1 for word in title_words
+            if len(word) > 3 and word in normalized_topic
+        )
+
+        if score > 0:
+            matches.append((score, book_id))
+
+    matches.sort(reverse=True)
+    return [BOOKS[book_id] for _, book_id in matches]
+
 BOOK_CHOICES = [
     app_commands.Choice(
         name="AMC 10/12 - Key Fundamentals and Strategies",
@@ -217,75 +331,58 @@ class Recommend(commands.Cog):
 
     @app_commands.command(
         name="recommend",
-        description="Find a TMAS Academy book for your course or subject.",
+        description="Find TMAS books related to a course or topic.",
     )
     @app_commands.describe(
-        book="Select the course or subject you need help with.",
-        topic="Optional: describe a topic you are currently studying.",
+        topic="What topic are you studying or struggling with?",
+        subject="Optional: narrow your search to a specific course.",
     )
-    @app_commands.choices(book=BOOK_CHOICES)
+    @app_commands.choices(subject=SUBJECT_CHOICES)
     async def recommend(
         self,
         interaction: discord.Interaction,
-        book: app_commands.Choice[str],
-        topic: str | None = None,
+        topic: str,
+        subject: app_commands.Choice[str] | None = None,
     ):
-        resource = BOOKS.get(book.value)
+        subject_value = subject.value if subject else None
+        recommendations = find_recommendations(topic, subject_value)
 
-        if resource is None:
+        if not recommendations:
             await interaction.response.send_message(
-                "Sorry, I couldn't find that book. Please try again.",
+                (
+                    "I couldn't find a matching book for that topic. "
+                    "Try a different keyword or select a course to narrow "
+                    "your search. You can also browse the "
+                    f"[TMAS Academy website]({WEBSITE_URL})."
+                ),
                 ephemeral=True,
             )
             return
 
         embed = discord.Embed(
-            title="📚 Your TMAS Book Recommendation",
+            title="📚 Your TMAS Book Recommendations",
             description=(
-                f"We recommend **{resource['title']}** "
-                "for your selected course!"
+                f"Here are TMAS resources related to **{topic}**."
             ),
             color=discord.Color.blue(),
-            url=WEBSITE_URL,
+            url=BOOKS_URL
         )
 
-        embed.add_field(
-            name="📖 Book",
-            value=resource["title"],
-            inline=False,
-        )
-
-        embed.add_field(
-            name="✍️ Author(s)",
-            value=resource["author"],
-            inline=False,
-        )
-
-        embed.add_field(
-            name="About This Book",
-            value=resource["description"],
-            inline=False,
-        )
-
-        embed.add_field(
-            name="📊 Book Details",
-            value=(
-                f"**Pages:** {resource['pages']}\n"
-                f"**Practice Problems:** {resource['problems']}"
-            ),
-            inline=True,
-        )
-
-        if topic:
+        for resource in recommendations[:5]:
             embed.add_field(
-                name="🎯 Your Topic",
-                value=discord.utils.escape_markdown(topic),
+                name=f"📖 {resource['title']}",
+                value=(
+                    f"**Author(s):** {resource['author']}\n"
+                    f"**Pages:** {resource['pages']}\n"
+                    f"**Practice Problems:** {resource['problems']}\n"
+                    f"{resource['description']}"
+                ),
                 inline=False,
             )
 
         embed.add_field(
-            name="🌐 Explore TMAS Academy",
-            value=f"[Visit the TMAS Academy website]({WEBSITE_URL})",
+            name="🌐 Explore TMAS Books",
+            value=f"[Browse all our books!]({BOOKS_URL})",
             inline=False,
         )
 
