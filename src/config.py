@@ -1,7 +1,5 @@
 """
-FileName : config.py
-FileInfo : This file contains configuration values loaded from
-           environment variables.
+Configuration management for the TMAS Academy Community Bot.
 """
 
 import os
@@ -9,6 +7,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GUILD_ID = int(os.getenv("GUILD_ID"))
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+DISCORD_TOKEN = get_required_env("DISCORD_TOKEN")
+
+try:
+    GUILD_ID = int(get_required_env("GUILD_ID"))
+except ValueError as error:
+    raise RuntimeError("GUILD_ID must be a valid integer.") from error
+
 DATABASE_URL = os.getenv("DATABASE_URL")
